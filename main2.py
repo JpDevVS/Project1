@@ -9,7 +9,7 @@ st.subheader("🔍 Extracción de Datos de Tarjetas de Presentación")
 # Permitir la subida de múltiples imágeneses
 uploaded_files = st.file_uploader("Sube imágenes de tarjetas", type=["jpg", "png", "jpeg"], accept_multiple_files=True)
 
-# local test
+# local tester
 
 ##**********************************************************************
 
