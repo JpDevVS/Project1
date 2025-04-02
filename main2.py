@@ -3,7 +3,7 @@ import streamlit as st
 import pandas
 
 # Configuración de la interfaz con Streamlit
-st.set_page_config(page_title="OCR de Tarjetas", layout="centered")
+st.set_page_config(page_title="Tarjetas de Negocios", layout="centered")
 st.subheader("🔍 Extracción de Datos de Tarjetas de Presentación")
 
 # Permitir la subida de múltiples imágeneses
