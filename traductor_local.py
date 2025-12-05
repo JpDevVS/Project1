@@ -1,44 +1,47 @@
+"""
+****************************************************************
+***   Compañia: Active Re                                    ***
+***   Proyecto: Traducción MultiIdioma desde Imágenes y PDFs ***
+***   Autor: Jaime Patiño                                    ***
+***   Fecha: Julio 2025                                      ***
+***   Derechos reservados © Active Re, 2025                  ***
+***   Licencia: Solo para uso interno de la empresa          ***
+****************************************************************
+"""
+
+
 import streamlit as st
-from PIL import Image, ImageEnhance, ImageFilter, ImageOps
+from PIL import Image, ImageEnhance
 import pytesseract
-from googletrans import Translator
 from docx import Document
-from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
-from reportlab.pdfbase import pdfmetrics
-from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
 import pandas as pd
 import io
-import openai
-from langchain_openai import ChatOpenAI
-from langchain_core.prompts import ChatPromptTemplate
 import os
-from deep_translator import GoogleTranslator
-import sys
-import locale
 import fitz  # PyMuPDF para leer PDFs
 import unicodedata
 import re
-import requests
 import urllib.request
-from pathlib import Path
 import cv2
 import numpy as np
 
+import requests
+import json
+
 # Configura la página
-st.set_page_config(page_title="Translator de Documentos", layout="wide")
+st.set_page_config(page_title="ActiveRe - IA Translator MultiIdioma", page_icon="icono.png", layout="centered", menu_items={
+        'about': f'''**Ver. 0.0.1-beta.1**        
+        05-Dic-2025 03:35 PM
+        '''
+        }
+    )
 
-openai_api = st.text_input("OpenAI API Key", key="chatbot_api_key", type="password")
-if not openai_api:
-    st.info("Por favor escriba su OpenAI API key para continuar.")
-    st.stop()
+st.image("AC_Grande.1.1.png")
 
-OPENAI_API_KEY = openai_api
-
-st.title("🈳 OCR y Traducción MultiIdioma desde Imágenes y PDFs")
-st.write("Sube una imagen o PDF con texto en cualquier idioma. La app extraerá el texto y lo traducirá al idioma seleccionado.")
+st.header("IA Traductor MultiIdioma (Imágenes y PDFs)")
+st.write("Sube una imagen o PDF con texto en cualquier idioma para extraer el texto y traducir al idioma seleccionado.")
 
 # Diccionario de idiomas soportados con sus códigos ISO
 IDIOMAS_TESSERACT = {
@@ -252,7 +255,7 @@ def preprocesar_imagen(image, escala=2.0):
         img_array = np.array(image)
 
         # Debug: Verificar tipo y shape de la imagen
-        print(f"Tipo original: {img_array.dtype}, Shape: {img_array.shape}")
+        #print(f"Tipo original: {img_array.dtype}, Shape: {img_array.shape}")
 
         # Asegurar que el array sea del tipo correcto
         if img_array.dtype == bool:
@@ -270,7 +273,7 @@ def preprocesar_imagen(image, escala=2.0):
         if gray.dtype != np.uint8:
             gray = gray.astype(np.uint8)
 
-        print(f"Tipo después de conversión: {gray.dtype}, Shape: {gray.shape}")
+        #print(f"Tipo después de conversión: {gray.dtype}, Shape: {gray.shape}")
 
         # Redimensionar imagen para mejorar OCR
         height, width = gray.shape
@@ -308,9 +311,7 @@ def preprocesar_imagen(image, escala=2.0):
 
 
 def preprocesar_imagen_original(image):
-    """
-    Preprocesa la imagen para mejorar el OCR, especialmente para texto hebreo/árabe
-    """
+
     try:
         # Convertir PIL a numpy array para OpenCV
         img_array = np.array(image)
@@ -342,9 +343,7 @@ def preprocesar_imagen_original(image):
 
 
 def mejorar_imagen_para_ocr(image):
-    """
-    Mejora la imagen usando PIL para mejor OCR
-    """
+
     try:
         # Redimensionar si es muy pequeña
         width, height = image.size
@@ -377,9 +376,7 @@ def mejorar_imagen_para_ocr(image):
 
 
 def ocr_con_idioma_especifico(image, codigo_idioma, usar_preprocesamiento=True):
-    """
-    Realiza OCR con un idioma específico y preprocesamiento de imagen
-    """
+
     try:
         # Crear copia de la imagen original
         imagen_procesada = image.copy()
@@ -490,43 +487,55 @@ def procesar_multiples_imagenes_ocr(imagenes, numeros_pagina, codigo_idioma, usa
 
 
 def traducir_con_gpt(texto_original, idioma_origen="auto"):
-    llm = ChatOpenAI(model="gpt-4o-mini", api_key=OPENAI_API_KEY)
-
-    system_message = """Eres un traductor profesional experto en múltiples idiomas incluyendo árabe, hebreo, chino, japonés y coreano. 
-    Traduce el texto manteniendo el formato, contexto y significado original. 
-    Si el texto contiene caracteres especiales o es de un idioma de escritura de derecha a izquierda, maneja la traducción apropiadamente."""
 
     question = f"""
-                Detecta el idioma del siguiente texto y tradúcelo al {idioma_destino} de manera precisa y natural:
+                Eres un traductor profesional experto en múltiples idiomas incluyendo árabe, hebreo, chino, japonés y coreano. 
+                Traduce el texto manteniendo el formato, contexto y significado original. 
+                Si el texto contiene caracteres especiales o es de un idioma de escritura de derecha a izquierda, maneja la traducción apropiadamente.    
+
+                Detecta el idioma del siguiente texto y tradúcelo al {idioma_destino} de manera precisa, natural y completa:
 
                 {texto_original}
 
-                Proporciona la traducción directamente sin explicaciones adicionales.
+                Proporciona la traducción directamente y de forma completa y sin explicaciones adicionales.
                 """
     try:
-        prompt = ChatPromptTemplate.from_messages(
-            [
-                ("system", system_message),
-                (
-                    "human",
-                    [
-                        {"type": "text", "text": "{input}"},
-                    ],
-                ),
-            ]
-        )
 
-        chain = prompt | llm
-        response = chain.invoke({"input": question})
+        response_text = extract_structured_data_local(question)
 
         st.write("**Traducción completada:**")
-        st.write(response.content)
+        st.write(response_text)
         st.write("------------------------------------")
 
-        return response.content
+        return response_text    
     except Exception as e:
         st.error(f"Error al traducir texto: {str(e)}")
-        return "Error al procesar el texto. Por favor, verifica tu API key de OpenAI y la conexión a internet."
+        return "Error al procesar el texto. Por favor, verifica tu conexión de Red."
+
+
+
+def extract_structured_data_local(question):
+    data = {
+        "model": "gpt-oss:20b",
+        "prompt": f"{question}",
+        "stream": False
+    }
+
+    url = 'http://10.0.0.51:11434/api/generate'
+    response = requests.post(url, json=data)
+
+    if response.status_code == 200:
+        for line in response.iter_lines(decode_unicode=True):
+            if line:
+                try:
+                    json_data = json.loads(line)
+                except ValueError as error:
+                    return {"Error": str(error)}
+    else:
+        return {"Error": f"HTTP status {response.status_code}"}
+
+    return json_data.get('response', "")
+
 
 
 def crear_pdf_con_reportlab(texto_original, texto_traducido):
@@ -609,63 +618,24 @@ with st.sidebar:
         min_value=150,
         max_value=600,
         value=150,
-        step=50,
-        help="Mayor DPI = mejor calidad pero procesamiento más lento"
+        step=50
     )
 
     mostrar_imagenes_pdf = st.checkbox(
         "👁️ Mostrar imágenes convertidas del PDF",
-        value=False,
-        help="Muestra las imágenes generadas desde el PDF"
+        value=False
     )
 
     # Opciones de preprocesamiento
     usar_preprocesamiento = st.checkbox(
         "🔧 Usar preprocesamiento de imagen",
-        value=False,
-        help="Mejora el contraste y limpia la imagen para mejor OCR"
+        value=False
     )
 
     mostrar_imagen_procesada = st.checkbox(
         "👁️ Mostrar imagen procesada",
-        value=False,
-        help="Muestra cómo se ve la imagen después del preprocesamiento"
+        value=False
     )
-
-    # Verificar idiomas instalados
-    # if st.button("🔍 Verificar idiomas instalados"):
-    #     idiomas_disponibles = verificar_idiomas_instalados()
-    #     st.write("**Idiomas instalados:**")
-    #     st.write(idiomas_disponibles)
-    #
-    #     # Verificar si el idioma seleccionado está disponible
-    #     if codigo_idioma != 'auto' and codigo_idioma not in idiomas_disponibles:
-    #         st.warning(f"⚠️ El idioma {idioma_seleccionado} ({codigo_idioma}) no está instalado")
-    #         if st.button(f"📥 Descargar {idioma_seleccionado}"):
-    #             if descargar_paquete_idioma(codigo_idioma):
-    #                 st.rerun()
-
-    # Información sobre instalación manual
-    # with st.expander("📖 Instalación manual de idiomas"):
-    #     st.markdown("""
-    #     **Para instalar idiomas manualmente:**
-    #
-    #     1. Descargar archivos .traineddata desde:
-    #        https://github.com/tesseract-ocr/tessdata
-    #
-    #     2. Copiar a la carpeta tessdata:
-    #        - Windows: `C:\\Program Files\\Tesseract-OCR\\tessdata`
-    #        - Linux: `/usr/share/tesseract-ocr/tessdata`
-    #        - Mac: `/opt/homebrew/share/tessdata`
-    #
-    #     **Códigos de idioma importantes:**
-    #     - Árabe: ara
-    #     - Hebreo: heb
-    #     - Chino Simplificado: chi_sim
-    #     - Chino Tradicional: chi_tra
-    #     - Japonés: jpn
-    #     - Coreano: kor
-    #     """)
 
 # Subir archivo
 uploaded_file = st.file_uploader("📤 Sube tu archivo aquí", type=["png", "jpg", "jpeg", "pdf"])
@@ -926,36 +896,3 @@ if uploaded_file:
             st.warning(
                 "⚠️ No se pudo extraer texto del archivo. Verifica que el archivo contenga texto legible o prueba con un idioma diferente.")
 
-    # Información adicional
-    st.markdown("---")
-    st.markdown("### 📋 Información:")
-    st.markdown(f"""
-    - **Formatos soportados**: PNG, JPG, JPEG, PDF
-    - **Idiomas soportados**: {len(IDIOMAS_TESSERACT) - 1} idiomas incluidos árabe, hebreo, chino
-    - **Idioma seleccionado**: {idioma_seleccionado}
-    - **Exportación**: PDF, Word, CSV con soporte Unicode
-    - **OCR**: Optimizado para idiomas RTL y CJK
-    """)
-
-    # Consejos para mejor OCR
-    with st.expander("💡 Consejos para mejor reconocimiento"):
-        st.markdown("""
-        **Para mejorar la precisión del OCR:**
-
-        1. **Calidad de imagen**: Usa imágenes de alta resolución (300 DPI mínimo)
-        2. **Contraste**: Asegúrate de que el texto tenga buen contraste con el fondo
-        3. **Idioma correcto**: Selecciona el idioma específico del texto
-        4. **Texto horizontal**: El texto debe estar bien alineado
-        5. **Sin ruido**: Evita fondos complejos o texto borroso
-        6. **Preprocesamiento**: Activa la opción para imágenes con marcas de agua
-
-        **Para texto hebreo específicamente:**
-        - Asegúrate de tener instalado el paquete 'heb'
-        - Usa el preprocesamiento para imágenes con fondo complejo
-        - El texto debe estar claramente visible y sin superposiciones
-
-        **Idiomas especiales:**
-        - **Árabe/Hebreo**: Se procesan de derecha a izquierda automáticamente
-        - **Chino/Japonés**: Soporta tanto caracteres simplificados como tradicionales
-        - **Múltiples idiomas**: Usa "Detección Automática" para texto mixto
-        """)
