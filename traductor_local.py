@@ -33,7 +33,7 @@ import json
 # Configura la página
 st.set_page_config(page_title="ActiveRe - IA Translator MultiIdioma", page_icon="icono.png", layout="centered", menu_items={
         'about': f'''**Ver. 0.0.1-beta.1**        
-        05-Dic-2025 03:35 PM
+        11-Dic-2025 03:40 PM
         '''
         }
     )
@@ -507,7 +507,7 @@ def traducir_con_gpt(texto_original, idioma_origen="auto"):
         st.write(response_text)
         st.write("------------------------------------")
 
-        return response_text    
+        return response_text
     except Exception as e:
         st.error(f"Error al traducir texto: {str(e)}")
         return "Error al procesar el texto. Por favor, verifica tu conexión de Red."
@@ -552,7 +552,8 @@ def crear_pdf_con_reportlab(texto_original, texto_traducido):
     try:
         # Limpiar textos
         texto_original_limpio = limpiar_texto_para_pdf(texto_original)
-        texto_traducido_limpio = limpiar_texto_para_pdf(texto_traducido)
+        #texto_traducido_limpio = limpiar_texto_para_pdf(texto_traducido)
+        texto_traducido_limpio = texto_traducido
 
         # Título
         title = Paragraph("Texto Extraído y Traducido", styles['Title'])
@@ -560,13 +561,13 @@ def crear_pdf_con_reportlab(texto_original, texto_traducido):
         story.append(Spacer(1, 12))
 
         # Texto original
-        subtitle1 = Paragraph("Texto Original:", styles['Heading2'])
-        story.append(subtitle1)
-        story.append(Spacer(1, 6))
+        #subtitle1 = Paragraph("Texto Original:", styles['Heading2'])
+        #story.append(subtitle1)
+        #story.append(Spacer(1, 6))
 
         original_para = Paragraph(texto_original_limpio.replace('\n', '<br/>'), styles['Normal'])
-        story.append(original_para)
-        story.append(Spacer(1, 12))
+        #story.append(original_para)
+        #story.append(Spacer(1, 12))
 
         # Texto traducido
         subtitle2 = Paragraph(f"Traducción al {idioma_destino}:", styles['Heading2'])
@@ -733,6 +734,7 @@ if uploaded_file:
                         with col1:
                             try:
                                 pdf_buffer = crear_pdf_con_reportlab(extracted_text, translated_text)
+                                #pdf_buffer = crear_pdf_con_reportlab(translated_text)
                                 st.download_button(
                                     label="📄 Descargar PDF",
                                     data=pdf_buffer.getvalue(),
@@ -746,9 +748,9 @@ if uploaded_file:
                         with col2:
                             try:
                                 doc = Document()
-                                doc.add_heading("Texto extraído y traducido", level=1)
-                                doc.add_heading("Texto original:", level=2)
-                                doc.add_paragraph(extracted_text)
+                                #doc.add_heading("Texto extraído y traducido", level=1)
+                                #doc.add_heading("Texto original:", level=2)
+                                #doc.add_paragraph(extracted_text)
                                 doc.add_heading(f"Traducción al {idioma_destino}:", level=2)
                                 doc.add_paragraph(translated_text)
                                 doc_buffer = io.BytesIO()
@@ -767,7 +769,7 @@ if uploaded_file:
                             try:
                                 df = pd.DataFrame({
                                     "Idioma_Origen": [idioma_seleccionado],
-                                    "Texto_Original": [extracted_text],
+                                    #"Texto_Original": [extracted_text],
                                     "Texto_Traducido": [translated_text]
                                 })
                                 csv_buffer = io.StringIO()
@@ -844,7 +846,8 @@ if uploaded_file:
                     # Exportar a PDF con ReportLab
                     with col1:
                         try:
-                            pdf_buffer = crear_pdf_con_reportlab(extracted_text, translated_text)
+                            #pdf_buffer = crear_pdf_con_reportlab(extracted_text, translated_text)
+                            pdf_buffer = crear_pdf_con_reportlab(translated_text)
                             st.download_button(
                                 label="📄 Descargar PDF",
                                 data=pdf_buffer.getvalue(),
@@ -858,9 +861,9 @@ if uploaded_file:
                     with col2:
                         try:
                             doc = Document()
-                            doc.add_heading("Texto extraído y traducido", level=1)
-                            doc.add_heading("Texto original:", level=2)
-                            doc.add_paragraph(extracted_text)
+                            #doc.add_heading("Texto extraído y traducido", level=1)
+                            #doc.add_heading("Texto original:", level=2)
+                            #doc.add_paragraph(extracted_text)
                             doc.add_heading(f"Traducción al {idioma_destino}:", level=2)
                             doc.add_paragraph(translated_text)
                             doc_buffer = io.BytesIO()
@@ -879,7 +882,7 @@ if uploaded_file:
                         try:
                             df = pd.DataFrame({
                                 "Idioma_Origen": [idioma_seleccionado],
-                                "Texto_Original": [extracted_text],
+                                #"Texto_Original": [extracted_text],
                                 "Texto_Traducido": [translated_text]
                             })
                             csv_buffer = io.StringIO()
