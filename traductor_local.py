@@ -31,37 +31,37 @@ import requests
 import json
 
 # Configura la página
-st.set_page_config(page_title="ActiveRe - IA Translator MultiIdioma", page_icon="icono.png", layout="centered", menu_items={
-        'about': f'''**Ver. 0.0.1-beta.1**        
-        11-Dic-2025 03:40 PM
+st.set_page_config(page_title="ActiveRe - AI Multi-Language Translator", page_icon="icono.png", layout="centered", menu_items={
+        'about': f'''**Ver. 0.0.2-beta.1**        
+        16-Dic-2025 03:50 PM
         '''
         }
     )
 
 st.image("AC_Grande.1.1.png")
 
-st.header("IA Traductor MultiIdioma (Imágenes y PDFs)")
-st.write("Sube una imagen o PDF con texto en cualquier idioma para extraer el texto y traducir al idioma seleccionado.")
+st.header("AI Multi-Language Translator (Images and PDFs)")
+st.write("Upload an image or PDF with text in any language to extract the text and translate it into the selected language.")
 
 # Diccionario de idiomas soportados con sus códigos ISO
 IDIOMAS_TESSERACT = {
-    'Árabe': 'ara',
-    'Chino Simplificado': 'chi_sim',
-    'Chino Tradicional': 'chi_tra',
-    'Hebreo': 'heb',
-    'Japonés': 'jpn',
-    'Coreano': 'kor',
-    'Ruso': 'rus',
+    'Arabic': 'ara',
+    'Simplified Chinese': 'chi_sim',
+    'Traditional Chinese': 'chi_tra',
+    'Hebrew': 'heb',
+    'Japanese': 'jpn',
+    'Korean': 'kor',
+    'Russian': 'rus',
     'Hindi': 'hin',
-    'Tailandés': 'tha',
-    'Vietnamita': 'vie',
-    'Inglés': 'eng',
-    'Español': 'spa',
-    'Francés': 'fra',
-    'Alemán': 'deu',
-    'Italiano': 'ita',
-    'Portugués': 'por',
-    'Detección Automática': 'auto'
+    'Thai': 'tha',
+    'Vietnamese': 'vie',
+    'English': 'eng',
+    'Spanish': 'spa',
+    'French': 'fra',
+    'German': 'deu',
+    'Italian': 'ita',
+    'Portuguese': 'por',
+    'Automatic Detection': 'auto'
 }
 
 
@@ -73,7 +73,7 @@ def verificar_idiomas_instalados():
         idiomas_disponibles = pytesseract.get_languages(config='')
         return idiomas_disponibles
     except Exception as e:
-        st.error(f"Error al verificar idiomas: {str(e)}")
+        st.error(f"Error verifying languages: {str(e)}")
         return ['eng']  # Solo inglés por defecto
 
 
@@ -102,7 +102,7 @@ def descargar_paquete_idioma(codigo_idioma):
                 break
 
         if not tessdata_path:
-            st.error("No se pudo encontrar la carpeta tessdata de Tesseract")
+            st.error("The Tesseract tessdata folder could not be found")
             return False
 
         archivo_destino = os.path.join(tessdata_path, filename)
@@ -112,14 +112,14 @@ def descargar_paquete_idioma(codigo_idioma):
 
         # Descargar el archivo
         url = base_url + filename
-        with st.spinner(f"Descargando paquete de idioma {codigo_idioma}..."):
+        with st.spinner(f"Downloading language pack {codigo_idioma}..."):
             urllib.request.urlretrieve(url, archivo_destino)
 
-        st.success(f"Paquete de idioma {codigo_idioma} descargado exitosamente")
+        st.success(f"Language pack {codigo_idioma} successfully downloaded")
         return True
 
     except Exception as e:
-        st.error(f"Error al descargar paquete de idioma {codigo_idioma}: {str(e)}")
+        st.error(f"Error downloading language pack {codigo_idioma}: {str(e)}")
         return False
 
 
@@ -164,7 +164,7 @@ def convertir_pdf_a_imagenes(pdf_file, dpi=300, formato='PNG'):
         return imagenes, numeros_pagina
 
     except Exception as e:
-        st.error(f"Error al convertir PDF a imágenes: {str(e)}")
+        st.error(f"Error converting PDF to images: {str(e)}")
         return [], []
 
 
@@ -203,7 +203,7 @@ def optimizar_imagen_pdf(image):
         return optimized_image
 
     except Exception as e:
-        st.warning(f"Error en optimización de imagen PDF: {str(e)}")
+        st.warning(f"Error in PDF image optimization: {str(e)}")
         return image
 
 
@@ -305,8 +305,8 @@ def preprocesar_imagen(image, escala=2.0):
         return processed_image
 
     except Exception as e:
-        st.warning(f"Error en preprocesamiento: {str(e)}")
-        print(f"Error detallado: {e}")
+        st.warning(f"Preprocessing error: {str(e)}")
+        print(f"Detailed error: {e}")
         return image
 
 
@@ -338,7 +338,7 @@ def preprocesar_imagen_original(image):
         return processed_image
 
     except Exception as e:
-        st.warning(f"Error en preprocesamiento: {str(e)}")
+        st.warning(f"Preprocessing error: {str(e)}")
         return image
 
 
@@ -371,7 +371,7 @@ def mejorar_imagen_para_ocr(image):
         return image
 
     except Exception as e:
-        st.warning(f"Error en mejora de imagen: {str(e)}")
+        st.warning(f"Image enhancement error: {str(e)}")
         return image
 
 
@@ -434,7 +434,7 @@ def ocr_con_idioma_especifico(image, codigo_idioma, usar_preprocesamiento=True):
                     if len(resultado.strip()) > len(mejor_resultado.strip()):
                         mejor_resultado = resultado
                 except Exception as config_error:
-                    st.warning(f"Error con configuración {config}: {str(config_error)}")
+                    st.warning(f"Configuration error {config}: {str(config_error)}")
                     continue
 
             # Si no se obtuvo resultado, intentar con la imagen original
@@ -447,7 +447,7 @@ def ocr_con_idioma_especifico(image, codigo_idioma, usar_preprocesamiento=True):
             return mejor_resultado
 
     except Exception as e:
-        st.error(f"Error en OCR con idioma {codigo_idioma}: {str(e)}")
+        st.error(f"OCR error with language {codigo_idioma}: {str(e)}")
         # Fallback a inglés con imagen original
         try:
             return pytesseract.image_to_string(image, lang='eng')
@@ -473,7 +473,7 @@ def procesar_multiples_imagenes_ocr(imagenes, numeros_pagina, codigo_idioma, usa
         texto_pagina = ocr_con_idioma_especifico(imagen, codigo_idioma, usar_preprocesamiento)
 
         if texto_pagina.strip():
-            texto_con_header = f"\n--- Página {num_pagina} ---\n{texto_pagina}\n"
+            texto_con_header = f"\n--- Page {num_pagina} ---\n{texto_pagina}\n"
             texto_completo += texto_con_header
             resultados_por_pagina.append({
                 'pagina': num_pagina,
@@ -503,14 +503,14 @@ def traducir_con_gpt(texto_original, idioma_origen="auto"):
 
         response_text = extract_structured_data_local(question)
 
-        st.write("**Traducción completada:**")
+        st.write("**Translation completed:**")
         st.write(response_text)
         st.write("------------------------------------")
 
         return response_text
     except Exception as e:
-        st.error(f"Error al traducir texto: {str(e)}")
-        return "Error al procesar el texto. Por favor, verifica tu conexión de Red."
+        st.error(f"Error translating text: {str(e)}")
+        return "Error processing the text. Please check your network connection."
 
 
 
@@ -556,7 +556,7 @@ def crear_pdf_con_reportlab(texto_original, texto_traducido):
         texto_traducido_limpio = texto_traducido
 
         # Título
-        title = Paragraph("Texto Extraído y Traducido", styles['Title'])
+        title = Paragraph("Extracted and Translated Text", styles['Title'])
         story.append(title)
         story.append(Spacer(1, 12))
 
@@ -570,7 +570,7 @@ def crear_pdf_con_reportlab(texto_original, texto_traducido):
         #story.append(Spacer(1, 12))
 
         # Texto traducido
-        subtitle2 = Paragraph(f"Traducción al {idioma_destino}:", styles['Heading2'])
+        subtitle2 = Paragraph(f"Translation to {idioma_destino}:", styles['Heading2'])
         story.append(subtitle2)
         story.append(Spacer(1, 6))
 
@@ -581,10 +581,10 @@ def crear_pdf_con_reportlab(texto_original, texto_traducido):
         doc.build(story)
 
     except Exception as e:
-        st.error(f"Error al crear PDF: {str(e)}")
+        st.error(f"Error creating PDF: {str(e)}")
         # Crear PDF simple como fallback
         doc = SimpleDocTemplate(buffer, pagesize=letter)
-        story = [Paragraph("Error al generar PDF con formato completo", styles['Normal'])]
+        story = [Paragraph("Error generating PDF with full format", styles['Normal'])]
         doc.build(story)
 
     return buffer
@@ -592,30 +592,30 @@ def crear_pdf_con_reportlab(texto_original, texto_traducido):
 
 # Sidebar para configuración
 with st.sidebar:
-    st.header("⚙️ Configuración")
+    st.header("⚙️ Settings")
 
     # Selección de idioma para OCR
     idioma_seleccionado = st.selectbox(
-        "Seleccionar idioma del texto:",
+        "Select text language:",
         options=list(IDIOMAS_TESSERACT.keys()),
-        index=list(IDIOMAS_TESSERACT.keys()).index('Detección Automática')  # Hebreo por defecto para tu imagen
+        index=list(IDIOMAS_TESSERACT.keys()).index('Automatic Detection')  # Hebreo por defecto para tu imagen
     )
 
 
     # Selección de idioma para OCR ***********************************
     idioma_destino = st.selectbox(
-        "Seleccionar idioma final:",
+        "Select final language:",
         options=list(IDIOMAS_TESSERACT.keys()),
-        index=list(IDIOMAS_TESSERACT.keys()).index('Inglés')  # Hebreo por defecto para tu imagen
+        index=list(IDIOMAS_TESSERACT.keys()).index('English')  # Hebreo por defecto para tu imagen
     )
 
 
     codigo_idioma = IDIOMAS_TESSERACT[idioma_seleccionado]
 
     # Configuración específica para PDFs
-    st.subheader("📄 Configuración PDF")
+    st.subheader("📄 PDF Settings")
     dpi_pdf = st.slider(
-        "🔍 Calidad de conversión PDF (DPI)",
+        "🔍 PDF conversion quality (DPI)",
         min_value=150,
         max_value=600,
         value=150,
@@ -623,23 +623,23 @@ with st.sidebar:
     )
 
     mostrar_imagenes_pdf = st.checkbox(
-        "👁️ Mostrar imágenes convertidas del PDF",
+        "👁️ Show converted images from the PDF",
         value=False
     )
 
     # Opciones de preprocesamiento
     usar_preprocesamiento = st.checkbox(
-        "🔧 Usar preprocesamiento de imagen",
+        "🔧 Use image preprocessing",
         value=False
     )
 
     mostrar_imagen_procesada = st.checkbox(
-        "👁️ Mostrar imagen procesada",
+        "👁️ Show processed image",
         value=False
     )
 
 # Subir archivo
-uploaded_file = st.file_uploader("📤 Sube tu archivo aquí", type=["png", "jpg", "jpeg", "pdf"])
+uploaded_file = st.file_uploader("📤 Upload your file here", type=["png", "jpg", "jpeg", "pdf"])
 
 # Procesamiento del archivo subido
 if uploaded_file:
@@ -647,32 +647,32 @@ if uploaded_file:
     extracted_text = ""
 
     if file_type == "application/pdf":
-        st.subheader("📄 Procesando PDF...")
+        st.subheader("📄 Processing PDF...")
 
         # Mostrar información del archivo
-        st.write(f"**Nombre del archivo:** {uploaded_file.name}")
-        st.write(f"**Tamaño:** {uploaded_file.size} bytes")
+        st.write(f"**File name:** {uploaded_file.name}")
+        st.write(f"**Size:** {uploaded_file.size} bytes")
 
         # Convertir PDF a imágenes
-        with st.spinner(f"🖼️ Convirtiendo PDF a imágenes (DPI: {dpi_pdf})..."):
+        with st.spinner(f"🖼️ Converting PDF to images (DPI: {dpi_pdf})..."):
             imagenes_pdf, numeros_pagina = convertir_pdf_a_imagenes(uploaded_file, dpi=dpi_pdf)
 
         if imagenes_pdf:
-            st.success(f"✅ PDF convertido exitosamente a {len(imagenes_pdf)} imágenes")
+            st.success(f"✅ PDF successfully converted to {len(imagenes_pdf)} images")
 
             # Mostrar imágenes convertidas si está habilitado
             if mostrar_imagenes_pdf:
-                st.subheader("🖼️ Imágenes convertidas del PDF:")
+                st.subheader("🖼️ Images converted from PDF:")
                 cols = st.columns(min(3, len(imagenes_pdf)))
                 for i, (imagen, num_pagina) in enumerate(zip(imagenes_pdf[:6], numeros_pagina[:6])):  # Mostrar máximo 6
                     with cols[i % 3]:
-                        st.image(imagen, caption=f"Página {num_pagina}", use_container_width=True)
+                        st.image(imagen, caption=f"Page {num_pagina}", use_container_width=True)
 
                 if len(imagenes_pdf) > 6:
-                    st.info(f"Mostrando las primeras 6 páginas de {len(imagenes_pdf)} totales")
+                    st.info(f"Showing the first 6 pages of {len(imagenes_pdf)} total")
 
             # Aplicar OCR a todas las imágenes
-            with st.spinner(f"🧠 Aplicando OCR a {len(imagenes_pdf)} páginas ({idioma_seleccionado})..."):
+            with st.spinner(f"🧠 Applying OCR to {len(imagenes_pdf)} pages ({idioma_seleccionado})..."):
                 extracted_text, resultados_por_pagina = procesar_multiples_imagenes_ocr(
                     imagenes_pdf, numeros_pagina, codigo_idioma, usar_preprocesamiento
                 )
@@ -681,53 +681,47 @@ if uploaded_file:
 
             # Mostrar estadísticas del OCR
             if resultados_por_pagina:
-                st.subheader("📊 Estadísticas de extracción:")
+                st.subheader("📊 Extraction statistics:")
                 col1, col2, col3 = st.columns(3)
                 with col1:
-                    st.metric("📄 Páginas procesadas", len(resultados_por_pagina))
+                    st.metric("📄 Pages processed", len(resultados_por_pagina))
                 with col2:
                     total_chars = sum(r['caracteres'] for r in resultados_por_pagina)
-                    st.metric("🔤 Total caracteres", total_chars)
+                    st.metric("🔤 Total characters", total_chars)
                 with col3:
                     paginas_con_texto = len([r for r in resultados_por_pagina if r['caracteres'] > 0])
-                    st.metric("✅ Páginas con texto", paginas_con_texto)
+                    st.metric("✅ Pages with text", paginas_con_texto)
 
                 # Mostrar detalles por página
-                with st.expander("📑 Detalles por página"):
+                with st.expander("📑 Details per page"):
                     for resultado in resultados_por_pagina:
                         if resultado['caracteres'] > 0:
-                            st.write(f"**Página {resultado['pagina']}:** {resultado['caracteres']} caracteres")
+                            st.write(f"**Page {resultado['pagina']}:** {resultado['caracteres']} characters")
                         else:
-                            st.write(f"**Página {resultado['pagina']}:** ❌ Sin texto detectado")
+                            st.write(f"**Page {resultado['pagina']}:** ❌ No text detected")
 
             # Mostrar información adicional del OCR
             if extracted_text.strip():
-                st.success(f"✅ Texto extraído exitosamente ({len(extracted_text)} caracteres)")
+                st.success(f"✅ Text extracted successfully ({len(extracted_text)} characters)")
             else:
-                st.warning("⚠️ No se pudo extraer texto. Intenta con:")
-                st.markdown("""
-                - Cambiar el idioma seleccionado
-                - Activar/desactivar el preprocesamiento
-                - Verificar que el idioma esté instalado
-                - Usar una imagen de mejor calidad
-                """)
+                st.warning("⚠️ Could not extract text.")
 
             # Mostrar texto extraído
             if extracted_text.strip():
-                st.subheader("📄 Texto extraído:")
-                st.text_area("Texto original:", extracted_text, height=200)
+                st.subheader("📄 Extracted text:")
+                st.text_area("Original text:", extracted_text, height=200)
 
                 # Botón de traducción
-                if st.button("🔄 Traducir Texto", type="primary"):
-                    with st.spinner("🤖 Traduciendo..."):
+                if st.button("🔄 Translate Text", type="primary"):
+                    with st.spinner("🤖 Translating..."):
                         translated_text = traducir_con_gpt(extracted_text, idioma_seleccionado)
 
                     if translated_text:
-                        st.subheader(f"🔤 Traducción al {idioma_destino}:")
-                        st.text_area("Texto traducido:", translated_text, height=300)
+                        st.subheader(f"🔤 Translation to {idioma_destino}:")
+                        st.text_area("Translated text:", translated_text, height=300)
 
                         # Botones para exportar
-                        st.markdown("### 💾 Exportar texto:")
+                        st.markdown("### 💾 Export text:")
                         col1, col2, col3 = st.columns(3)
 
                         # Exportar a PDF con ReportLab
@@ -736,13 +730,13 @@ if uploaded_file:
                                 pdf_buffer = crear_pdf_con_reportlab(extracted_text, translated_text)
                                 #pdf_buffer = crear_pdf_con_reportlab(translated_text)
                                 st.download_button(
-                                    label="📄 Descargar PDF",
+                                    label="📄 Download PDF",
                                     data=pdf_buffer.getvalue(),
-                                    file_name="traduccion_ocr.pdf",
+                                    file_name="translation_ocr.pdf",
                                     mime="application/pdf"
                                 )
                             except Exception as e:
-                                st.error(f"Error al generar PDF: {str(e)}")
+                                st.error(f"Error generating PDF: {str(e)}")
 
                         # Exportar a Word
                         with col2:
@@ -751,18 +745,18 @@ if uploaded_file:
                                 #doc.add_heading("Texto extraído y traducido", level=1)
                                 #doc.add_heading("Texto original:", level=2)
                                 #doc.add_paragraph(extracted_text)
-                                doc.add_heading(f"Traducción al {idioma_destino}:", level=2)
+                                doc.add_heading(f"Translation to {idioma_destino}:", level=2)
                                 doc.add_paragraph(translated_text)
                                 doc_buffer = io.BytesIO()
                                 doc.save(doc_buffer)
                                 st.download_button(
-                                    label="📝 Descargar Word",
+                                    label="📝 Download Word",
                                     data=doc_buffer.getvalue(),
-                                    file_name="traduccion_ocr.docx",
+                                    file_name="translation_ocr.docx",
                                     mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
                                 )
                             except Exception as e:
-                                st.error(f"Error al generar Word: {str(e)}")
+                                st.error(f"Error generating Word: {str(e)}")
 
                         # Exportar a CSV
                         with col3:
@@ -775,72 +769,66 @@ if uploaded_file:
                                 csv_buffer = io.StringIO()
                                 df.to_csv(csv_buffer, index=False, encoding='utf-8-sig')  # BOM para Excel
                                 st.download_button(
-                                    label="📊 Descargar CSV",
+                                    label="📊 Download CSV",
                                     data=csv_buffer.getvalue(),
-                                    file_name="traduccion_ocr.csv",
+                                    file_name="translation_ocr.csv",
                                     mime="text/csv"
                                 )
                             except Exception as e:
-                                st.error(f"Error al generar CSV: {str(e)}")
+                                st.error(f"Error generating CSV: {str(e)}")
             else:
                 st.warning(
-                    "⚠️ No se pudo extraer texto del archivo. Verifica que el archivo contenga texto legible o prueba con un idioma diferente.")
+                    "⚠️ Could not extract text from the file. Make sure the file contains readable text or try a different language.")
 
         else:
-            st.error("❌ No se pudo convertir el PDF a imágenes")
+            st.error("❌ The PDF could not be converted to images")
 
     else:  # Imagen
-        st.subheader("🖼️ Procesando Imagen...")
+        st.subheader("🖼️ Processing Image...")
         image = Image.open(uploaded_file)
-        st.image(image, caption="📷 Imagen original", use_container_width=True)
+        st.image(image, caption="📷 Original image", use_container_width=True)
 
         # Mostrar imagen procesada si está habilitado
         if mostrar_imagen_procesada and usar_preprocesamiento:
-            with st.spinner("🔧 Preprocesando imagen..."):
+            with st.spinner("🔧 Processing Image..."):
                 imagen_mejorada = mejorar_imagen_para_ocr(image.copy())
                 imagen_final = preprocesar_imagen(imagen_mejorada)
-                st.image(imagen_final, caption="🔧 Imagen procesada para OCR", use_container_width=True)
+                st.image(imagen_final, caption="🔧 Image processed for OCR", use_container_width=True)
 
         # Extracción OCR con idioma específico
-        with st.spinner(f"🧠 Extrayendo texto con OCR ({idioma_seleccionado})..."):
+        with st.spinner(f"🧠 Extracting text with OCR ({idioma_seleccionado})..."):
             try:
                 extracted_text = ocr_con_idioma_especifico(image, codigo_idioma, usar_preprocesamiento)
             except Exception as e:
-                st.error(f"Error en OCR: {str(e)}")
+                st.error(f"OCR error: {str(e)}")
                 if codigo_idioma != 'eng':
-                    st.info("Intentando con inglés como fallback...")
+                    st.info("Trying with English as a fallback...")
                     extracted_text = ocr_con_idioma_especifico(image, 'eng', usar_preprocesamiento)
                 else:
                     extracted_text = ""
 
         # Mostrar información adicional del OCR
         if extracted_text.strip():
-            st.success(f"✅ Texto extraído exitosamente ({len(extracted_text)} caracteres)")
+            st.success(f"✅ Text extracted successfully ({len(extracted_text)} caracteres)")
         else:
-            st.warning("⚠️ No se pudo extraer texto. Intenta con:")
-            st.markdown("""
-            - Cambiar el idioma seleccionado
-            - Activar/desactivar el preprocesamiento
-            - Verificar que el idioma esté instalado
-            - Usar una imagen de mejor calidad
-            """)
+            st.warning("⚠️ Could not extract text.")
 
         # Mostrar texto extraído
         if extracted_text.strip():
-            st.subheader("📄 Texto extraído:")
-            st.text_area("Texto original:", extracted_text, height=200)
+            st.subheader("📄 Extracted text:")
+            st.text_area("Original text:", extracted_text, height=200)
 
             # Botón de traducción
-            if st.button("🔄 Traducir Texto", type="primary"):
-                with st.spinner("🤖 Traduciendo..."):
+            if st.button("🔄 Translate Text", type="primary"):
+                with st.spinner("🤖 Translating..."):
                     translated_text = traducir_con_gpt(extracted_text, idioma_seleccionado)
 
                 if translated_text:
-                    st.subheader(f"🔤 Traducción al {idioma_destino}:")
-                    st.text_area("Texto traducido:", translated_text, height=300)
+                    st.subheader(f"🔤 Translation to {idioma_destino}:")
+                    st.text_area("Translated text:", translated_text, height=300)
 
                     # Botones para exportar
-                    st.markdown("### 💾 Exportar texto:")
+                    st.markdown("### 💾 Export text:")
                     col1, col2, col3 = st.columns(3)
 
                     # Exportar a PDF con ReportLab
@@ -849,13 +837,13 @@ if uploaded_file:
                             #pdf_buffer = crear_pdf_con_reportlab(extracted_text, translated_text)
                             pdf_buffer = crear_pdf_con_reportlab(translated_text)
                             st.download_button(
-                                label="📄 Descargar PDF",
+                                label="📄 Download PDF",
                                 data=pdf_buffer.getvalue(),
-                                file_name="traduccion_ocr.pdf",
+                                file_name="translation_ocr.pdf",
                                 mime="application/pdf"
                             )
                         except Exception as e:
-                            st.error(f"Error al generar PDF: {str(e)}")
+                            st.error(f"Error generating PDF: {str(e)}")
 
                     # Exportar a Word
                     with col2:
@@ -864,18 +852,18 @@ if uploaded_file:
                             #doc.add_heading("Texto extraído y traducido", level=1)
                             #doc.add_heading("Texto original:", level=2)
                             #doc.add_paragraph(extracted_text)
-                            doc.add_heading(f"Traducción al {idioma_destino}:", level=2)
+                            doc.add_heading(f"Translation to {idioma_destino}:", level=2)
                             doc.add_paragraph(translated_text)
                             doc_buffer = io.BytesIO()
                             doc.save(doc_buffer)
                             st.download_button(
-                                label="📝 Descargar Word",
+                                label="📝 Download Word",
                                 data=doc_buffer.getvalue(),
-                                file_name="traduccion_ocr.docx",
+                                file_name="translation_ocr.docx",
                                 mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
                             )
                         except Exception as e:
-                            st.error(f"Error al generar Word: {str(e)}")
+                            st.error(f"Error generating Word: {str(e)}")
 
                     # Exportar a CSV
                     with col3:
@@ -888,14 +876,14 @@ if uploaded_file:
                             csv_buffer = io.StringIO()
                             df.to_csv(csv_buffer, index=False, encoding='utf-8-sig')  # BOM para Excel
                             st.download_button(
-                                label="📊 Descargar CSV",
+                                label="📊 Download CSV",
                                 data=csv_buffer.getvalue(),
-                                file_name="traduccion_ocr.csv",
+                                file_name="translation_ocr.csv",
                                 mime="text/csv"
                             )
                         except Exception as e:
-                            st.error(f"Error al generar CSV: {str(e)}")
+                            st.error(f"Error generating CSV: {str(e)}")
         else:
             st.warning(
-                "⚠️ No se pudo extraer texto del archivo. Verifica que el archivo contenga texto legible o prueba con un idioma diferente.")
+                "⚠️ Could not extract text from the file. Make sure the file contains readable text or try a different language.")
 
