@@ -32,8 +32,8 @@ import json
 
 # Configura la página
 st.set_page_config(page_title="ActiveRe - AI Multi-Language Translator", page_icon="icono.png", layout="centered", menu_items={
-        'about': f'''**Ver. 0.0.2-beta.1**        
-        16-Dic-2025 03:50 PM
+        'about': f'''**Ver. 0.0.3-beta.1**        
+        20-Ene-2026 04:35 PM
         '''
         }
     )
@@ -44,7 +44,7 @@ st.header("AI Multi-Language Translator (Images and PDFs)")
 st.write("Upload an image or PDF with text in any language to extract the text and translate it into the selected language.")
 
 # Diccionario de idiomas soportados con sus códigos ISO
-IDIOMAS_TESSERACT = {
+IDIOMAS_TESSERACT1 = {
     'Arabic': 'ara',
     'Simplified Chinese': 'chi_sim',
     'Traditional Chinese': 'chi_tra',
@@ -62,6 +62,26 @@ IDIOMAS_TESSERACT = {
     'Italian': 'ita',
     'Portuguese': 'por',
     'Automatic Detection': 'auto'
+}
+
+IDIOMAS_TESSERACT = {
+    'Automatic Detection': 'auto',
+    'Arabic': 'ara',
+    'English': 'eng',
+    'French': 'fra',
+    'German': 'deu',
+    'Hebrew': 'heb',
+    'Hindi': 'hin',
+    'Italian': 'ita',
+    'Japanese': 'jpn',
+    'Korean': 'kor',
+    'Portuguese': 'por',
+    'Simplified Chinese': 'chi_sim',
+    'Spanish': 'spa',
+    'Russian': 'rus',
+    'Thai': 'tha',
+    'Traditional Chinese': 'chi_tra',
+    'Vietnamese': 'vie',
 }
 
 
