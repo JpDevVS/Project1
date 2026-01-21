@@ -30,6 +30,13 @@ import numpy as np
 # Configura la página
 st.set_page_config(page_title="Translator de Documentos", layout="wide")
 
+st.set_page_config(page_title="AI Multi-Language Translator", page_icon="icono1.png", layout="centered", menu_items={
+        'about': f'''**Ver. 0.0.3-beta.1**        
+        20-Ene-2026 04:35 PM
+        '''
+        }
+    )
+
 openai_api = st.text_input("OpenAI API Key", key="chatbot_api_key", type="password")
 if not openai_api:
     st.info("Por favor escriba su OpenAI API key para continuar.")
@@ -41,7 +48,7 @@ st.title("🈳 OCR y Traducción MultiIdioma desde Imágenes y PDFs")
 st.write("Sube una imagen o PDF con texto en cualquier idioma. La app extraerá el texto y lo traducirá al idioma seleccionado.")
 
 # Diccionario de idiomas soportados con sus códigos ISO
-IDIOMAS_TESSERACT = {
+IDIOMAS_TESSERACT1 = {
     'Árabe': 'ara',
     'Chino Simplificado': 'chi_sim',
     'Chino Tradicional': 'chi_tra',
@@ -59,6 +66,26 @@ IDIOMAS_TESSERACT = {
     'Italiano': 'ita',
     'Portugués': 'por',
     'Detección Automática': 'auto'
+}
+
+IDIOMAS_TESSERACT = {
+    'Automatic Detection': 'auto',
+    'Arabic': 'ara',
+    'English': 'eng',
+    'French': 'fra',
+    'German': 'deu',
+    'Hebrew': 'heb',
+    'Hindi': 'hin',
+    'Italian': 'ita',
+    'Japanese': 'jpn',
+    'Korean': 'kor',
+    'Portuguese': 'por',
+    'Simplified Chinese': 'chi_sim',
+    'Spanish': 'spa',
+    'Russian': 'rus',
+    'Thai': 'tha',
+    'Traditional Chinese': 'chi_tra',
+    'Vietnamese': 'vie',
 }
 
 
