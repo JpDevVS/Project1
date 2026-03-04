@@ -28,7 +28,7 @@ import cv2
 import numpy as np
 
 # Configura la página
-st.set_page_config(page_title="Translator de Documentos", layout="wide")
+#st.set_page_config(page_title="Translator de Documentos", layout="wide")
 
 st.set_page_config(page_title="AI Multi-Language Translator", page_icon="icono1.png", layout="centered", menu_items={
         'about': f'''**Ver. 0.0.3-beta.1**        
@@ -48,27 +48,27 @@ st.title("🈳 OCR y Traducción MultiIdioma desde Imágenes y PDFs")
 st.write("Sube una imagen o PDF con texto en cualquier idioma. La app extraerá el texto y lo traducirá al idioma seleccionado.")
 
 # Diccionario de idiomas soportados con sus códigos ISO
-IDIOMAS_TESSERACT1 = {
+IDIOMAS_TESSERACT = {
+    'Detección Automática': 'auto',
+    'Alemán': 'deu',
     'Árabe': 'ara',
     'Chino Simplificado': 'chi_sim',
     'Chino Tradicional': 'chi_tra',
-    'Hebreo': 'heb',
-    'Japonés': 'jpn',
     'Coreano': 'kor',
-    'Ruso': 'rus',
-    'Hindi': 'hin',
-    'Tailandés': 'tha',
-    'Vietnamita': 'vie',
-    'Inglés': 'eng',
     'Español': 'spa',
     'Francés': 'fra',
-    'Alemán': 'deu',
+    'Hebreo': 'heb',
+    'Hindi': 'hin',
+    'Inglés': 'eng',
     'Italiano': 'ita',
+    'Japonés': 'jpn',
     'Portugués': 'por',
-    'Detección Automática': 'auto'
+    'Ruso': 'rus',
+    'Tailandés': 'tha',
+    'Vietnamita': 'vie',
 }
 
-IDIOMAS_TESSERACT = {
+IDIOMAS_TESSERACT1 = {
     'Automatic Detection': 'auto',
     'Arabic': 'ara',
     'English': 'eng',
